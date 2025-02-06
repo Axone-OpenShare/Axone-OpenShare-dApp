@@ -1,0 +1,15 @@
+{
+  "_pubkey_": {
+    "@type": "/cosmos.crypto.secp256k1.PubKey",
+    "key": "A6iAZhiYe+qpESvol+kcJLzYb+NGHIJ57/A2O52Suoul"
+  },
+  "_amount_": "1000000000uaxone", 
+  "_moniker_": "myvalidator",
+  "_identity_": "",
+  "_website_": "",
+  "_security_": "",
+  "_details_": "",
+  "_commission-rate_": "0.1",
+  "_commission-max-rate_": "0.2",
+  "_commission-max-change-rate_":"0.01"
+}
