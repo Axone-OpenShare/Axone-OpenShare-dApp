@@ -1,85 +1,87 @@
-# CosmWasm Starter Pack
+# AXONE OPEN_SHARE
 
-This is a template to build smart contracts in Rust to run inside a
-[Cosmos SDK](https://github.com/cosmos/cosmos-sdk) module on all chains that enable it.
-To understand the framework better, please read the overview in the
-[cosmwasm repo](https://github.com/CosmWasm/cosmwasm/blob/master/README.md),
-and dig into the [cosmwasm docs](https://www.cosmwasm.com).
-This assumes you understand the theory and just want to get coding.
+## Overview
+This dApp provides functionality for uploading files and querying metadata, using AXONE tokens as a form of payment for file uploads.
 
-## Creating a new repo from template
+## Features
+- Users can upload file metadata (file name, size, and timestamp) by paying AXONE tokens.
+- The contract enforces a 10MB file size limit.
+- The file metadata is stored on-chain and can be queried later.
+- It tracks the total number of uploaded files.
 
-Assuming you have a recent version of Rust and Cargo installed
-(via [rustup](https://rustup.rs/)),
-then the following should get you a new repo to start a contract:
+## Contract Structure
+- **`contract.rs`**: Implements contract logic (instantiation, execution, and queries).
+- **`state.rs`**: Defines the state structures and handles persistent storage.
 
-Install [cargo-generate](https://github.com/ashleygwilliams/cargo-generate) and cargo-run-script.
-Unless you did that before, run this line now:
-
-```sh
-cargo install cargo-generate --features vendored-openssl
-cargo install cargo-run-script
+## State Storage
+### `State`
+```rust
+pub struct State {
+    pub file_count: u64, // Total number of uploaded files
+    pub axone_token_denom: String, // AXONE token denomination
+}
+```
+### `FileMetadata`
+```rust
+pub struct FileMetadata {
+    pub owner: Addr,
+    pub file_name: String,
+    pub file_size: u64,
+    pub upload_time: u64,
+}
 ```
 
-Now, use it to create your new contract.
-Go to the folder in which you want to place it and run:
+## Entry Points
+### Instantiate
+Initializes the contract with:
+- `axone_token_denom`: The token used for payments.
 
-**Latest**
-
-```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME
+```rust
+pub fn instantiate(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: InstantiateMsg,
+) -> Result<Response, ContractError>
 ```
 
-For cloning minimal code repo:
+### Execute
+#### Upload File Metadata
+Users call this function to upload a file by providing:
+- `file_name`: Name of the file.
+- `file_size`: Size of the file (must be <= 10MB).
+- Must send 1 AXONE token as payment.
 
-```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME -d minimal=true
+```rust
+pub fn execute_upload_file(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    file_name: String,
+    file_size: u64,
+) -> Result<Response, ContractError>
 ```
 
-You will now have a new folder called `PROJECT_NAME` (I hope you changed that to something else)
-containing a simple working contract and build system that you can customize.
+### Query
+#### Get File Metadata
+Retrieves stored file metadata by file name.
 
-## Create a Repo
-
-After generating, you have a initialized local git repo, but no commits, and no remote.
-Go to a server (eg. github) and create a new upstream repo (called `YOUR-GIT-URL` below).
-Then run the following:
-
-```sh
-# this is needed to create a valid Cargo.lock file (see below)
-cargo check
-git branch -M main
-git add .
-git commit -m 'Initial Commit'
-git remote add origin YOUR-GIT-URL
-git push -u origin main
+```rust
+pub fn query_file_metadata(
+    deps: Deps,
+    env: Env,
+    file_name: String,
+) -> StdResult<Binary>
 ```
 
-## CI Support
+## Storage
+- **State:** Stores the global contract state.
+- **File Metadata:** Uses `cw_storage_plus::Map` to store metadata keyed by `file_name`.
 
-We have template configurations for both [GitHub Actions](.github/workflows/Basic.yml)
-and [Circle CI](.circleci/config.yml) in the generated project, so you can
-get up and running with CI right away.
+## Error Handling
+- `InsufficientFunds`: Returned if a user does not send 1 AXONE token.
+- `FileSizeTooLarge`: Returned if file size exceeds 10MB.
+- `FileNotFound`: Returned if the queried file does not exist.
 
-One note is that the CI runs all `cargo` commands
-with `--locked` to ensure it uses the exact same versions as you have locally. This also means
-you must have an up-to-date `Cargo.lock` file, which is not auto-generated.
-The first time you set up the project (or after adding any dep), you should ensure the
-`Cargo.lock` file is updated, so the CI will test properly. This can be done simply by
-running `cargo check` or `cargo unit-test`.
-
-## Using your project
-
-Once you have your custom repo, you should check out [Developing](./Developing.md) to explain
-more on how to run tests and develop code. Or go through the
-[online tutorial](https://docs.cosmwasm.com/) to get a better feel
-of how to develop.
-
-[Publishing](./Publishing.md) contains useful information on how to publish your contract
-to the world, once you are ready to deploy it on a running blockchain. And
-[Importing](./Importing.md) contains information about pulling in other contracts or crates
-that have been published.
-
-Please replace this README file with information about your specific project. You can keep
-the `Developing.md` and `Publishing.md` files as useful references, but please set some
-proper description in the README.
+### Notice
+  - This is the first iteration of this project. For now this repository contains only contracts and at their first iteration, our developers are actively researching and working to see the finish of this project.
