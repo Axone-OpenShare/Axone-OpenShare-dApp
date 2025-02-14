@@ -14,3 +14,14 @@
 # IDEs
 *.iml
 .idea
+# Ignore node_modules folders in both backend and frontend
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Ignore environment files and sensitive data
+.env
+backend/.env
+
+# Ignore uploads folder (if files are generated or temporary)
+backend/uploads/

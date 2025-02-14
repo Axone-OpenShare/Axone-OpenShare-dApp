@@ -1,0 +1,3 @@
+# frontend/.npmrc
+audit-level=high
+legacy-peer-deps=true
